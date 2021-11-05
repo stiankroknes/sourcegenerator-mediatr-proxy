@@ -29,7 +29,7 @@ jobs:
     - name: Push to Nuget Pkg GitHub
       env:
           NUGET_URL: https://api.nuget.org/v3/index.json
-          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: ./push.ps1
       shell: pwsh
     
