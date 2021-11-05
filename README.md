@@ -28,7 +28,7 @@ Define assembly info in project where implementation should be.
 [assembly: MediatrProxyImplementation("IMyService", "Project.Shared", "Project.Application.Service")]
 ```
 
-TODO: Generates ... see tests for examples.
+TODO: Generates ... see demo/tests for examples.
 
 ```csharp
 public interface IMyService { .. }
