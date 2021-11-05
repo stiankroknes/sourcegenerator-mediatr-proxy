@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <Product>SourceGenerator.MediatR.Proxy</Product>
-    <LangVersion>preview</LangVersion>
+     <LangVersion>latest</LangVersion>
     <Features>strict</Features>
     <Nullable>disable</Nullable>
   </PropertyGroup>
@@ -10,7 +10,7 @@
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- Don't make missing XML docs a fatal build error, but still surface so we have visibility into undocumented APIs. -->
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;NU5017</WarningsNotAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591</WarningsNotAsErrors>
   </PropertyGroup>
 
 </Project>
