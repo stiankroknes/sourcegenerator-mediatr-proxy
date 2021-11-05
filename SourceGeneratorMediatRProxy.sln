@@ -7,11 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SourceGenerator.MediatR.Pro
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SourceGenerator.MediatR.Proxy.Tests", "tests\SourceGenerator.MediatR.Proxy.Tests\SourceGenerator.MediatR.Proxy.Tests.csproj", "{42D4A84D-4E53-45F5-B2FE-EFB64955811C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{AEFDDD58-F3B2-4E14-A97D-747C9F0D9BE0}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demo", "Demo", "{AEFDDD58-F3B2-4E14-A97D-747C9F0D9BE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp.Application", "samples\MyApp.Application\MyApp.Application.csproj", "{4215AF57-4C45-4151-A852-8331B0D0CD2D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp.Application", "demo\MyApp.Application\MyApp.Application.csproj", "{4215AF57-4C45-4151-A852-8331B0D0CD2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp.Shared", "sample\MyApp.Shared\MyApp.Shared.csproj", "{AC06B9B8-8378-4FBD-AD1B-0731AED615FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp.Shared", "demo\MyApp.Shared\MyApp.Shared.csproj", "{AC06B9B8-8378-4FBD-AD1B-0731AED615FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
