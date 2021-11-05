@@ -1,0 +1,1 @@
+﻿[assembly: MediatrProxyImplementation("IMyService", "MyApp.Shared", "MyApp.Application")]

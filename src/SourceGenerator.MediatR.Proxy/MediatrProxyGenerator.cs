@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using SourceGenerator.MediatR.Proxy.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -70,28 +71,26 @@ namespace SourceGenerator.MediatR.Proxy
             var proxyContractOptions = GetProxyContractOptions(compilation, proxyContractAttribute);
             var proxyImplementationOptions = GetProxyImplementationOptions(compilation, proxyImplementationAttribute);
 
-            MediatrRequestScannerOptions scannerOptions = proxyContractOptions is not null ? proxyContractOptions : proxyImplementationOptions;
+            if (proxyContractOptions != null)
+            {
+                GenerateInterface(context, syntaxReceiver, proxyContractOptions, proxyImplementationOptions);
+            }
+            else if (proxyImplementationOptions != null)
+            {
+                GenerateInterfaceImplementation(context, proxyImplementationOptions, compilation);
+            }
+        }
 
+        private static void GenerateInterface(GeneratorExecutionContext context, CandidateSyntaxReceiver syntaxReceiver, ProxyContractOptions proxyContractOptions, ProxyImplementationOptions proxyImplementationOptions)
+        {
             // Scan contract assembly for all query/commands.
-            var requests = MediatrRequestScanner.GetAll(syntaxReceiver.CandidateTypes, scannerOptions);
+            var requests = MediatrRequestScanner.GetAll(syntaxReceiver.CandidateTypes, proxyContractOptions);
 
             if (requests.Count == 0)
             {
                 return;
             }
 
-            if (proxyContractOptions != null)
-            {
-                GenerateInterface(context, requests, proxyContractOptions, proxyImplementationOptions);
-            }
-            else if (proxyImplementationOptions != null)
-            {
-                GenerateInterfaceImplementation(context, requests, proxyImplementationOptions, compilation);
-            }
-        }
-
-        private static void GenerateInterface(GeneratorExecutionContext context, IReadOnlyList<RequestDetail> requests, ProxyContractOptions proxyContractOptions, ProxyImplementationOptions proxyImplementationOptions)
-        {
             // Generate interface containing a method for each query/command found.
             var source = SourceCodeGenerator.GenerateInterface(proxyContractOptions, requests);
             context.AddSource(source.FileName, SourceText.From(source.SourceCode, Encoding.UTF8));
@@ -104,59 +103,37 @@ namespace SourceGenerator.MediatR.Proxy
             }
         }
 
-        private static void GenerateInterfaceImplementation(GeneratorExecutionContext context, IReadOnlyList<RequestDetail> requests, ProxyImplementationOptions proxyImplementationOptions, Compilation compilation)
+        private static void GenerateInterfaceImplementation(GeneratorExecutionContext context, ProxyImplementationOptions proxyImplementationOptions, Compilation compilation)
         {
+            // TODO: resolve contract assembly using context.Compilation.SourceModule.ReferencedAssemblySymbols and use the scanner logic?
+
             // Find the proxy interface we should implement. 
-            // var proxyInterfaceName = $"{proxyImplementationOptions.ContractNamespace}.{proxyImplementationOptions.ProxyInterfaceName}";
-            // var proxyInterfaceType = compilation.GetTypeByMetadataName(proxyInterfaceName);
-
-            // TODO: consider add proxyInterfaceType != null check. 
-
-            // This approach requires the interface to be present... good thing I guess. But we must resolve RequestDetail thru interface instead of using the contracts.
+            var proxyInterfaceName = $"{proxyImplementationOptions.ContractNamespace}.{proxyImplementationOptions.ProxyInterfaceName}";
+            var proxyInterfaceType = compilation.GetTypeByMetadataName(proxyInterfaceName);
 
             // Get request details about each method in the interface.
-            // var requestDetails = proxyInterfaceType.GetMembers()
-            //     .OfType<IMethodSymbol>()
-            //     .Select(m =>
-            //     {
-            //         bool isQuery = m.Parameters[0].ToString().EndsWith(proxyImplementationOptions.QueryPostfix);
-            //         var name = TransformRequestTypeToMethodName(proxyImplementationOptions, isQuery, m.Parameters[0].Type.Name);
-            //
-            //         return new RequestDetail
-            //         {
-            //             Name = name,
-            //             Type = m.Parameters[0].ToString(),
-            //             ReturnType = m.ReturnType.ToString(),
-            //             Namespace = m.Parameters[0].ContainingNamespace?.ToString(),
-            //             IsQuery = isQuery
-            //         };
-            //     }).ToList();
+            var requests = proxyInterfaceType.GetMembers()
+                .OfType<IMethodSymbol>()
+                .Select(m =>
+                {
+                    bool isQuery = m.Parameters[0].ToString().EndsWith(proxyImplementationOptions.QueryPostfix);
+
+                    var name = m.Parameters[0].Type.Name.StripPostfix(isQuery
+                        ? proxyImplementationOptions.QueryPostfix
+                        : proxyImplementationOptions.CommandPostfix);
+
+                    return new RequestDetail
+                    {
+                        Name = name,
+                        Type = m.Parameters[0].ToString(),
+                        ReturnType = m.ReturnType.ToString(),
+                        Namespace = m.Parameters[0].ContainingNamespace?.ToString(),
+                        IsQuery = isQuery
+                    };
+                }).ToList();
 
             var source = SourceCodeGenerator.GenerateImplementation(proxyImplementationOptions, requests);
             context.AddSource(source.FileName, SourceText.From(source.SourceCode, Encoding.UTF8));
-
-            // static string TransformRequestTypeToMethodName(MediatrRequestScannerOptions options, bool isQuery, string requestType)
-            // {
-            //     var name = requestType;
-            //     if (isQuery)
-            //     {
-            //         var queryPostfixIndex = name.LastIndexOf(options.QueryPostfix, StringComparison.Ordinal);
-            //         if (queryPostfixIndex > 0)
-            //         {
-            //             name = name.Substring(0, queryPostfixIndex);
-            //         }
-            //     }
-            //     else
-            //     {
-            //         var commandPostfixIndex = name.LastIndexOf(options.CommandPostfix, StringComparison.Ordinal);
-            //         if (commandPostfixIndex > 0)
-            //         {
-            //             name = name.Substring(0, commandPostfixIndex);
-            //         }
-            //     }
-            //
-            //     return name;
-            // }
         }
 
         private static ProxyContractOptions GetProxyContractOptions(Compilation compilation, INamedTypeSymbol proxyContractAttribute)

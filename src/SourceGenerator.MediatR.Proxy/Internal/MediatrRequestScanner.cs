@@ -31,13 +31,7 @@ namespace SourceGenerator.MediatR.Proxy.Internal
                         var comments = command.GetLeadingTrivia().ToString();
 
                         var commandNamespace = ((QualifiedNameSyntax)((NamespaceDeclarationSyntax)command.Parent).Name).ToString();
-                        
-                        var commandName = command.Identifier.ValueText;
-                        int commandPostfixIndex = commandName.LastIndexOf(options.CommandPostfix);
-                        if (commandPostfixIndex > 0)
-                        {
-                            commandName = commandName.Substring(0, commandPostfixIndex);
-                        }
+                        var commandName = command.Identifier.ValueText.StripPostfix(options.CommandPostfix);
 
                         requests.Add(new RequestDetail
                         {
@@ -57,18 +51,10 @@ namespace SourceGenerator.MediatR.Proxy.Internal
                         var query = tds;
                         var queryReturnType = GetReturnTypeFromGenericArgs(query, options.QueryIdentifierString);
                         var comments = query.GetLeadingTrivia().ToString();
-                        //var model = compilation.GetSemanticModel(query.SyntaxTree);
-                        var queryNamespace = ((QualifiedNameSyntax)((NamespaceDeclarationSyntax)query.Parent).Name).ToString(); 
-                        //  model.GetTypeInfo(query).Type.ContainingNamespace.ToString();
 
-                        var queryName = query.Identifier.ValueText;
-                        int queryPostfixIndex = queryName.LastIndexOf(options.QueryPostfix);
-                        if (queryPostfixIndex > 0)
-                        {
-                            queryName = queryName.Substring(0, queryPostfixIndex);
-                        }
+                        var queryNamespace = ((QualifiedNameSyntax)((NamespaceDeclarationSyntax)query.Parent).Name).ToString();
+                        var queryName = query.Identifier.ValueText.StripPostfix(options.QueryPostfix);
 
-                        //var queryNamespace = query.Identifier.i
                         requests.Add(new RequestDetail
                         {
                             Name = queryName,
