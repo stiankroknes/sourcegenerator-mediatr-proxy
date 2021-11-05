@@ -15,7 +15,7 @@
     <RepositoryUrl>https://github.com/stiankroknes/sourcegenerator-mediatr-proxy</RepositoryUrl>    
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>        
-    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild> --><!-- Generates a package at build -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput> <!-- Do not include the generator as a lib dependency -->
   </PropertyGroup>
 
