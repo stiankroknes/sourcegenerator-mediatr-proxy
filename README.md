@@ -25,7 +25,7 @@ Define assembly info in contract/shared assembly.
 
 Define assembly info in project where implementation should be.
 ```csharp
-[assembly: MediatrProxy("IMyService", "Project.Shared", "Project.Application.Service")]
+[assembly: MediatrProxyImplementation("IMyService", "Project.Shared", "Project.Application.Service")]
 ```
 
 TODO: Generates ... see tests for examples.
