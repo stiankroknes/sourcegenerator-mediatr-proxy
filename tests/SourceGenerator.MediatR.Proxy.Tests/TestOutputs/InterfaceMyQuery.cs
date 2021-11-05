@@ -10,10 +10,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using SourceGenerator.MediatR.Proxy.Tests.TestInputs;
 
-namespace Migration.Operations.Shared
+namespace Project.Shared
 {
     [System.ServiceModel.ServiceContract]
-    public interface IOperationsServiceProxy
+    public interface IMyService
     {
         [System.ServiceModel.OperationContract]
         System.Threading.Tasks.Task<MyQueryResultType> My(SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyQuery query, CancellationToken cancellationToken = default);

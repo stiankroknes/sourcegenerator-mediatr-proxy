@@ -14,15 +14,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="TestOutputs\*.cs">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Include="TestOutputs\InterfaceImplMyCommand.cs">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Include="TestOutputs\InterfaceImplMyQuery.cs">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
+        <EmbeddedResource Include="TestOutputs/InterfaceImplMyCommand.cs" />
+        <EmbeddedResource Include="TestOutputs/InterfaceMyCommand.cs" />
+        <EmbeddedResource Include="TestOutputs/InterfaceImplMyQuery.cs" />
+        <EmbeddedResource Include="TestOutputs/InterfaceMyQuery.cs" />
     </ItemGroup>
 
     <ItemGroup>

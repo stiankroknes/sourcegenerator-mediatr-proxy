@@ -9,15 +9,15 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Migration.Operations.Shared;
+using Project.Shared;
 using SourceGenerator.MediatR.Proxy.Tests.TestInputs;
 
-namespace Migration.Operations.Server.Application.Services
+namespace Project.Application.Services
 {
-    public class OperationsServiceProxy : IOperationsServiceProxy
+    public class MyService : IMyService
     {
         private readonly IMediator mediator;
-        public OperationsServiceProxy(IMediator mediator)
+        public MyService(IMediator mediator)
         {
             this.mediator = mediator;
         }
