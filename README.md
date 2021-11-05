@@ -1,0 +1,1 @@
+# sourcegenerator-mediatr-proxy
