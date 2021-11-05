@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - '*.*.*'
+jobs:
+  build:
+    # strategy:
+    #   fail-fast: false
+    runs-on: ubuntu-latest
+    
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    
+    - name: Build and Test
+      run: ./build.ps1
+      shell: pwsh
+    
+    - name: Push to Nuget Pkg GitHub
+      env:
+          NUGET_URL: https://api.nuget.org/v3/index.json
+          NUGET_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+      run: ./push.ps1
+      shell: pwsh
+    
+    - name: Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: artifacts/**/*
