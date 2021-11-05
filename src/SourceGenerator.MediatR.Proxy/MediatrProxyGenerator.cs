@@ -24,7 +24,7 @@ namespace SourceGenerator.MediatR.Proxy
             }
 
             var typeDeclarationSyntax = (TypeDeclarationSyntax)syntaxNode;
-            
+
             if (typeDeclarationSyntax.BaseList == null)
             {
                 return;
@@ -46,13 +46,21 @@ namespace SourceGenerator.MediatR.Proxy
             {
                 return;
             }
-            
-            // Create a new compilation that contains the attribute.
-            var attributesSource = ResourceReader.GetResource("MediatrProxyAttribute.cs", GetType());
-            context.AddSource("MediatrAttributes_MainAttributes__", SourceText.From(attributesSource, Encoding.UTF8));
-            var options = (CSharpParseOptions)context.Compilation.SyntaxTrees.First().Options;
-            var attributeSyntaxTree = CSharpSyntaxTree.ParseText(SourceText.From(attributesSource, Encoding.UTF8), options);
-            var compilation = context.Compilation.AddSyntaxTrees(attributeSyntaxTree);
+
+            var compilation = context.Compilation;
+
+            // Project where interface is generated will have the attribute present. We should not add the attribute to project implementing the interface.
+            bool isAttributeDefined = context.Compilation.SourceModule.ReferencedAssemblySymbols
+                .Any(a => a.GetAttributes().Any(a => a.AttributeClass.Name == "MediatrProxyContractAttribute"));
+            if (!isAttributeDefined)
+            {
+                // Create a new compilation that contains the attribute.
+                var attributesSource = ResourceReader.GetResource("MediatrProxyAttribute.cs", GetType());
+                context.AddSource("MediatrAttributes_MainAttributes__", SourceText.From(attributesSource, Encoding.UTF8));
+                var options = (CSharpParseOptions)context.Compilation.SyntaxTrees.First().Options;
+                var attributeSyntaxTree = CSharpSyntaxTree.ParseText(SourceText.From(attributesSource, Encoding.UTF8), options);
+                compilation = context.Compilation.AddSyntaxTrees(attributeSyntaxTree);
+            }
 
             // Get attributes
             var proxyImplementationAttribute = compilation.GetTypeByMetadataName("MediatrProxyImplementationAttribute");

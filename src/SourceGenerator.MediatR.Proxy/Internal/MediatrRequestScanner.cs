@@ -1,7 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace SourceGenerator.MediatR.Proxy.Internal
 {
@@ -17,10 +15,6 @@ namespace SourceGenerator.MediatR.Proxy.Internal
 
             foreach (var tds in candidateTypeDeclarationSyntaxes)
             {
-                //var semanticModel = compilation.GetSemanticModel(tds.SyntaxTree);
-                //var classSymbol = semanticModel.GetDeclaredSymbol(tds);
-                //INamedTypeSymbol d = (INamedTypeSymbol) classSymbol;
-                
                 var baseList = tds.BaseList;
 
                 foreach (var entry in baseList.Types)
@@ -36,10 +30,8 @@ namespace SourceGenerator.MediatR.Proxy.Internal
                         var commandReturnType = GetReturnTypeFromGenericArgs(command, options.CommandIdentifierString);
                         var comments = command.GetLeadingTrivia().ToString();
 
-                        //var model = compilation.GetSemanticModel(command.SyntaxTree);
-                        //var commandNamespace = model.GetTypeInfo(command).Type.ContainingNamespace.ToString();
                         var commandNamespace = ((QualifiedNameSyntax)((NamespaceDeclarationSyntax)command.Parent).Name).ToString();
-
+                        
                         var commandName = command.Identifier.ValueText;
                         int commandPostfixIndex = commandName.LastIndexOf(options.CommandPostfix);
                         if (commandPostfixIndex > 0)
