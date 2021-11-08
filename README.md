@@ -18,24 +18,85 @@ This generator generates interface and interface implementation for you based on
 
 ## How to use it
 
-Define assembly info in contract/shared assembly.
+Define assembly level attribute in contract/shared assembly where interface should be generated.
 ```csharp
-[assembly: MediatrProxyContract("IMyService", "Project.Shared")]
+[assembly: SourceGenerator.MediatR.Proxy.MediatrProxyContract("IMyService", "Project.Shared")]
 ```
 
-Define assembly info in project where implementation should be.
+Define assembly level attribute in project where implementation should be generated.
 ```csharp
-[assembly: MediatrProxyImplementation("IMyService", "Project.Shared", "Project.Application.Service")]
+[assembly: SourceGenerator.MediatR.Proxy.MediatrProxyImplementation("IMyService", "Project.Shared", "Project.Application.Service")]
 ```
 
 TODO: Generates ... see demo/tests for examples.
 
+In contract assembly we have request.
 ```csharp
-public interface IMyService { .. }
+namespace MyApp.Shared
+{
+    public class GetSomeDataQuery : Query<SomeDataResult>
+    {
+    }
 
-public class MyService : IMyService { ..}
+    public class SomeDataResult
+    {
+        public string? Data { get; set; }
+    }
+    
+    public  class GenerateSomethingCommand : Command<SomethingResult>
+    {
+    }
+
+    public class SomethingResult { }
+}
+```
+
+Source generator will then create this interface in the contract/shared assembly.
+
+```csharp
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using MyApp.Shared;
+
+namespace MyApp.Shared
+{
+    [System.ServiceModel.ServiceContract]
+    public interface IMyService
+    {
+        [System.ServiceModel.OperationContract]
+        System.Threading.Tasks.Task<SomeDataResult> GetSomeData(MyApp.Shared.GetSomeDataQuery query, CancellationToken cancellationToken = default);
+        [System.ServiceModel.OperationContract]
+        System.Threading.Tasks.Task<SomethingResult> GenerateSomething(MyApp.Shared.GenerateSomethingCommand command, CancellationToken cancellationToken = default);
+    }
+}
+```
+
+And this implementation in the implementation assembly.
+```csharp
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
+using MyApp.Shared;
+
+namespace MyApp.Application
+{
+    public class MyService : IMyService
+    {
+        private readonly IMediator mediator;
+        public MyService(IMediator mediator)
+        {
+            this.mediator = mediator;
+        }
+
+        public System.Threading.Tasks.Task<MyApp.Shared.SomeDataResult> GetSomeData(MyApp.Shared.GetSomeDataQuery query, CancellationToken cancellationToken = default) => mediator.Send(query, cancellationToken);
+        public System.Threading.Tasks.Task<MyApp.Shared.SomethingResult> GenerateSomething(MyApp.Shared.GenerateSomethingCommand command, CancellationToken cancellationToken = default) => mediator.Send(command, cancellationToken);
+    }
+}
 ```
 
 ## Customize
 
 ...
+
