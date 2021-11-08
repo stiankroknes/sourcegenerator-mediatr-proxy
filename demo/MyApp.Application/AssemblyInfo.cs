@@ -1,1 +1,1 @@
-﻿[assembly: MediatrProxyImplementation("IMyService", "MyApp.Shared", "MyApp.Application")]
+﻿[assembly: SourceGenerator.MediatR.Proxy.MediatrProxyImplementation("IMyService", "MyApp.Shared", "MyApp.Application")]
