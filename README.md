@@ -53,6 +53,8 @@ namespace MyApp.Shared
 
 Source generator will then create this interface in the contract/shared assembly.
 
+_Note: Contract/shared need reference to System.ServiceModel.Primitives for now, will be configurable._
+
 ```csharp
 using System.Collections.Generic;
 using System.Threading;
