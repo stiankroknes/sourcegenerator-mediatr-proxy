@@ -15,10 +15,10 @@
     
     internal class MediatrRequestScannerOptions
     {
-        public string QueryIdentifierString { get; init; } = "Query";
-        public string CommandIdentifierString { get; init; } = "Command";
+        public string QueryIdentifierString { get; set; } = "Query";
+        public string CommandIdentifierString { get; set; } = "Command";
 
-        public string QueryPostfix { get; init; } = "Query";
-        public string CommandPostfix { get; init; } = "Command";
+        public string QueryPostfix { get; set; } = "Query";
+        public string CommandPostfix { get; set; } = "Command";
     }
 }

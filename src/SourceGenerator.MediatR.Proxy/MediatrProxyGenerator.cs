@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using SourceGenerator.MediatR.Proxy.Internal;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -38,6 +37,9 @@ namespace SourceGenerator.MediatR.Proxy
     [Generator]
     public class MediatrProxyGenerator : ISourceGenerator
     {
+        private static readonly DiagnosticDescriptor GeneratorOnDuplicateAttributeUsage = new("SGENMPRX001", "Cannot generate interface", "Duplicate usage of {0} was found in assembly", "SourceGeneratorMediatRProxy", DiagnosticSeverity.Error, true);
+        private static readonly DiagnosticDescriptor GeneratorNotEnabled = new(id: "SGENMPRX002", title: "No source to generate", messageFormat: "Attribute to enable generator is not used", category: "SourceGeneratorMediatRProxy", DiagnosticSeverity.Warning, isEnabledByDefault: true);
+
         public void Initialize(GeneratorInitializationContext context) =>
             context.RegisterForSyntaxNotifications(() => new CandidateSyntaxReceiver());
 
@@ -52,7 +54,9 @@ namespace SourceGenerator.MediatR.Proxy
 
             // Project where interface is generated will have the attribute present. We should not add the attribute to project implementing the interface.
             bool isAttributeDefined = context.Compilation.SourceModule.ReferencedAssemblySymbols
-                .Any(a => a.GetAttributes().Any(a => a.AttributeClass.Name == "MediatrProxyContractAttribute"));
+                .Any(a => a.GetAttributes()
+                    .Any(a => a.AttributeClass.Name == "MediatrProxyContractAttribute"));
+
             if (!isAttributeDefined)
             {
                 // Create a new compilation that contains the attribute.
@@ -64,12 +68,12 @@ namespace SourceGenerator.MediatR.Proxy
             }
 
             // Get attributes
-            var proxyImplementationAttribute = compilation.GetTypeByMetadataName("MediatrProxyImplementationAttribute");
-            var proxyContractAttribute = compilation.GetTypeByMetadataName("MediatrProxyContractAttribute");
+            var proxyImplementationAttribute = compilation.GetTypeByMetadataName("SourceGenerator.MediatR.Proxy.MediatrProxyImplementationAttribute");
+            var proxyContractAttribute = compilation.GetTypeByMetadataName("SourceGenerator.MediatR.Proxy.MediatrProxyContractAttribute");
 
             // Extract attribute usage options
-            var proxyContractOptions = GetProxyContractOptions(compilation, proxyContractAttribute);
-            var proxyImplementationOptions = GetProxyImplementationOptions(compilation, proxyImplementationAttribute);
+            var proxyContractOptions = GetProxyContractOptions(context, compilation, proxyContractAttribute);
+            var proxyImplementationOptions = GetProxyImplementationOptions(context, compilation, proxyImplementationAttribute);
 
             if (proxyContractOptions != null)
             {
@@ -88,6 +92,7 @@ namespace SourceGenerator.MediatR.Proxy
 
             if (requests.Count == 0)
             {
+                // diagnostics?
                 return;
             }
 
@@ -136,37 +141,89 @@ namespace SourceGenerator.MediatR.Proxy
             context.AddSource(source.FileName, SourceText.From(source.SourceCode, Encoding.UTF8));
         }
 
-        private static ProxyContractOptions GetProxyContractOptions(Compilation compilation, INamedTypeSymbol proxyContractAttribute)
+        private static ProxyContractOptions GetProxyContractOptions(GeneratorExecutionContext context, Compilation compilation, INamedTypeSymbol proxyContractAttribute)
         {
-            return compilation.Assembly.GetAttributes()
+            var attributes = compilation.Assembly.GetAttributes()
                 .Where(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, proxyContractAttribute))
-                .Select(x => new ProxyContractOptions
-                {
-                    ProxyInterfaceName = (string)x.ConstructorArguments[0].Value!,
-                    ContractNamespace = (string)x.ConstructorArguments[1].Value!,
-                    QueryIdentifierString = (string)x.ConstructorArguments[2].Value!,
-                    CommandIdentifierString = (string)x.ConstructorArguments[3].Value!,
-                    QueryPostfix = (string)x.ConstructorArguments[4].Value!,
-                    CommandPostfix = (string)x.ConstructorArguments[5].Value!
-                })
-                .SingleOrDefault();
+                .ToList();
+
+            if (attributes.Count > 1)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(GeneratorOnDuplicateAttributeUsage, null, proxyContractAttribute.Name));
+            }
+
+            if (attributes.Count == 0)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(GeneratorNotEnabled, null));
+                return null;
+            }
+
+            var attribute = attributes[0];
+
+            var option = new ProxyContractOptions
+            {
+                ProxyInterfaceName = (string)attribute.ConstructorArguments[0].Value!,
+                ContractNamespace = (string)attribute.ConstructorArguments[1].Value!,
+            };
+
+            ApplyScannerOptionsFromNamedArguments(option, attribute);
+
+            return option;
         }
 
-        private static ProxyImplementationOptions GetProxyImplementationOptions(Compilation compilation, INamedTypeSymbol proxyImplementationAttribute)
+        private static ProxyImplementationOptions GetProxyImplementationOptions(GeneratorExecutionContext context, Compilation compilation, INamedTypeSymbol proxyImplementationAttribute)
         {
-            return compilation.Assembly.GetAttributes()
-                .Where(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, proxyImplementationAttribute))
-                .Select(x => new ProxyImplementationOptions
+            var attributes = compilation.Assembly.GetAttributes()
+              .Where(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, proxyImplementationAttribute))
+              .ToList();
+
+            if (attributes.Count > 1)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(GeneratorOnDuplicateAttributeUsage, null, proxyImplementationAttribute.Name));
+            }
+
+            if (attributes.Count == 0)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(GeneratorNotEnabled, null));
+                return null;
+            }
+
+            var attribute = attributes[0];
+            var option = new ProxyImplementationOptions
+            {
+                ProxyInterfaceName = (string)attribute.ConstructorArguments[0].Value!,
+                ContractNamespace = (string)attribute.ConstructorArguments[1].Value!,
+                ImplementationNamespace = (string)attribute.ConstructorArguments[2].Value!
+            };
+
+            ApplyScannerOptionsFromNamedArguments(option, attribute);
+
+            return option;
+        }
+
+        private static void ApplyScannerOptionsFromNamedArguments(MediatrRequestScannerOptions options, AttributeData attribute)
+        {
+            foreach (KeyValuePair<string, TypedConstant> arg in attribute.NamedArguments)
+            {
+                switch (arg.Key)
                 {
-                    ProxyInterfaceName = (string)x.ConstructorArguments[0].Value!,
-                    ContractNamespace = (string)x.ConstructorArguments[1].Value!,
-                    ImplementationNamespace = (string)x.ConstructorArguments[2].Value!,
-                    QueryIdentifierString = (string)x.ConstructorArguments[3].Value!,
-                    CommandIdentifierString = (string)x.ConstructorArguments[4].Value!,
-                    QueryPostfix = (string)x.ConstructorArguments[5].Value!,
-                    CommandPostfix = (string)x.ConstructorArguments[6].Value!
-                })
-                .SingleOrDefault();
+                    case nameof(MediatrRequestScannerOptions.QueryIdentifierString):
+                        options.QueryIdentifierString = GetStringValue(arg) ?? options.QueryIdentifierString;
+                        break;
+                    case nameof(MediatrRequestScannerOptions.CommandIdentifierString):
+                        options.CommandIdentifierString = GetStringValue(arg) ?? options.CommandIdentifierString;
+                        break;
+                    case nameof(MediatrRequestScannerOptions.QueryPostfix):
+                        options.QueryPostfix = GetStringValue(arg) ?? options.QueryPostfix;
+                        break;
+                    case nameof(MediatrRequestScannerOptions.CommandPostfix):
+                        options.CommandPostfix = GetStringValue(arg) ?? options.CommandPostfix;
+                        break;
+                }
+            }
+
+            static string GetStringValue(KeyValuePair<string, TypedConstant> arg) =>
+                arg.Value.Value is string s ? s : default;
         }
     }
 }

@@ -12,6 +12,27 @@ namespace SourceGenerator.MediatR.Proxy.Tests.Support
 {
     internal static class GeneratorRunner
     {
+        public static GeneratorResult Run(string sourceCode, string attributeUsage, ISourceGenerator generators)
+        {
+            var compilation = CreateCompilation(sourceCode, attributeUsage);
+
+            var driver = CSharpGeneratorDriver.Create(
+                ImmutableArray.Create(generators), ImmutableArray<AdditionalText>.Empty, (CSharpParseOptions)compilation.SyntaxTrees.First().Options);
+
+            driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
+
+            var generatedCode = GetGeneratedCode(generators, outputCompilation);
+
+            return new GeneratorResult
+            {
+                Compilation = compilation,
+                Diagnostics = diagnostics,
+                WarningMessages = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Warning).Select(d => d.GetMessage()).ToList(),
+                ErrorMessages = diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.GetMessage()).ToList(),
+                GeneratedCode = GetGeneratedCode(generators, outputCompilation),
+            };
+        }
+
         private static Compilation CreateCompilation(string source, string attributeUsage)
         {
             var syntaxTrees = new[]
@@ -36,28 +57,15 @@ namespace SourceGenerator.MediatR.Proxy.Tests.Support
             return compilation;
         }
 
-        public static GeneratorResult Run(string sourceCode, string attributeUsage, ISourceGenerator generators)
-        {
-            var compilation = CreateCompilation(sourceCode, attributeUsage);
-
-            var driver = CSharpGeneratorDriver.Create(
-                ImmutableArray.Create(generators), ImmutableArray<AdditionalText>.Empty, (CSharpParseOptions)compilation.SyntaxTrees.First().Options);
-
-            driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
-
-            var generatedCode = GetGeneratedCode(generators, outputCompilation);
-
-            return new GeneratorResult(outputCompilation, diagnostics, generatedCode);
-        }
-
-        private static IEnumerable<GeneratedSource> GetGeneratedCode(ISourceGenerator generators, Compilation outputCompilation) =>
+        private static IReadOnlyList<GeneratedSource> GetGeneratedCode(ISourceGenerator generators, Compilation outputCompilation) =>
             outputCompilation.SyntaxTrees
                 .Where(syntaxTree => syntaxTree.FilePath.IndexOf(generators.GetType().Name, StringComparison.Ordinal) > -1)
                 .Select(t => new GeneratedSource
                 {
+                    SyntaxTree = t,
                     Source = t.ToString(),
                     FileName = t.FilePath[(t.FilePath.LastIndexOf(Path.DirectorySeparatorChar) + 1)..],
                     FilePath = t.FilePath,
-                });
+                }).ToList();
     }
 }

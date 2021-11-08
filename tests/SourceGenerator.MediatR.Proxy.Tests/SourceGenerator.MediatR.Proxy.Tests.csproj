@@ -8,12 +8,17 @@
 
     <ItemGroup>
         <Compile Remove="TestOutputs\*.cs" />
-        <Compile Include="..\..\src\SourceGenerator.MediatR.Proxy\Templates\MediatrProxyAttribute.cs">
+        <Compile Include="..\..\src\SourceGenerator.MediatR.Proxy\MediatrProxyAttribute.cs">
             <Link>TestInputs\MediatrProxyAttribute.cs</Link>
         </Compile>
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="..\..\src\SourceGenerator.MediatR.Proxy\MediatrProxyAttribute.cs">
+          <Link>TestInputs\MediatrProxyAttribute.cs</Link>
+        </EmbeddedResource>
+        <EmbeddedResource Include="TestInputs/MyCommand.cs" />
+        <EmbeddedResource Include="TestInputs/MyQuery.cs" />
         <EmbeddedResource Include="TestOutputs/InterfaceImplMyCommand.cs" />
         <EmbeddedResource Include="TestOutputs/InterfaceMyCommand.cs" />
         <EmbeddedResource Include="TestOutputs/InterfaceImplMyQuery.cs" />

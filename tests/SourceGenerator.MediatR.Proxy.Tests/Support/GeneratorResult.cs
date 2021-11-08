@@ -1,28 +1,31 @@
 ﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace SourceGenerator.MediatR.Proxy.Tests.Support
 {
     internal class GeneratorResult
     {
-        public GeneratorResult(Compilation Compilation, ImmutableArray<Diagnostic> Diagnostics, IEnumerable<GeneratedSource> generatedCode)
-        {
-            this.Compilation = Compilation;
-            this.Diagnostics = Diagnostics;
-            GeneratedCode = generatedCode;
-        }
-
-        public Compilation Compilation { get; }
-        public ImmutableArray<Diagnostic> Diagnostics { get; }
-        public IEnumerable<GeneratedSource> GeneratedCode { get; }
+        public Compilation Compilation { get; init; }
+        public IReadOnlyList<string> ErrorMessages { get; init; }
+        public IReadOnlyList<string> WarningMessages { get; init; }
+        public ImmutableArray<Diagnostic> Diagnostics { get; init; }
+        public IReadOnlyList<GeneratedSource> GeneratedCode { get; init; }
     }
 
     internal class GeneratedSource
     {
-        public string Source { get; set; }
-        public string FilePath  { get; set; }
-        public string FileName { get; set; }
+        public SyntaxTree SyntaxTree { get; init; }
+        public string Source { get; init; }
+        public string FilePath { get; init; }
+        public string FileName { get; init; }
+    }
 
+    internal static class GeneratorResultExtensions
+    {
+        internal static GeneratedSource GetSourceByFileName(this GeneratorResult result, string filename) =>
+            result.GeneratedCode.SingleOrDefault(g => string.Equals(filename, g.FileName, StringComparison.Ordinal));
     }
 }
