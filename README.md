@@ -4,7 +4,7 @@ SourceGenerator.MediatR.Proxy
 [![Version](https://img.shields.io/nuget/v/Sourcegenerator.MediatR.Proxy?color=royalblue)](https://www.nuget.org/packages/SourceGenerator.MediatR.Proxy)
 [![Downloads](https://img.shields.io/nuget/dt/SourceGenerator.MediatR.Proxy?label=Nuget%20downloads)](https://www.nuget.org/packages/SourceGenerator.MediatR.Proxy)
 [![License](https://img.shields.io/github/license/stiankroknes/sourcegenerator-mediatr-proxy)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/blob/main/LICENSE)
-[![Build](https://github.com/kzu/ThisAssembly/workflows/build/badge.svg?branch=main)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/actions)
+[![Build](https://img.shields.io/github/workflow/status/stiankroknes/sourcegenerator-mediatr-proxy/CI%20Build)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/actions)
 [![GitHub forks](https://img.shields.io/github/forks/stiankroknes/sourcegenerator-mediatr-proxy)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/network/members)
 [![GitHub stars](https://img.shields.io/github/stars/stiankroknes/sourcegenerator-mediatr-proxy)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/stargazers)
 
