@@ -33,12 +33,11 @@ namespace SourceGenerator.MediatR.Proxy
             CandidateTypes.Add(typeDeclarationSyntax);
         }
     }
-
+    
     [Generator]
     public class MediatrProxyGenerator : ISourceGenerator
     {
         private static readonly DiagnosticDescriptor GeneratorOnDuplicateAttributeUsage = new("SGENMPRX001", "Cannot generate interface", "Duplicate usage of {0} was found in assembly", "SourceGeneratorMediatRProxy", DiagnosticSeverity.Error, true);
-        private static readonly DiagnosticDescriptor GeneratorNotEnabled = new(id: "SGENMPRX002", title: "No source to generate", messageFormat: "Attribute to enable generator is not used", category: "SourceGeneratorMediatRProxy", DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
         public void Initialize(GeneratorInitializationContext context) =>
             context.RegisterForSyntaxNotifications(() => new CandidateSyntaxReceiver());
@@ -52,6 +51,7 @@ namespace SourceGenerator.MediatR.Proxy
 
             var compilation = context.Compilation;
 
+            // The source generator will run in two contexts (contract, impl). Consider if better to split in two packages.
             // Project where interface is generated will have the attribute present. We should not add the attribute to project implementing the interface.
             bool isAttributeDefined = context.Compilation.SourceModule.ReferencedAssemblySymbols
                 .Any(a => a.GetAttributes()
@@ -154,7 +154,6 @@ namespace SourceGenerator.MediatR.Proxy
 
             if (attributes.Count == 0)
             {
-                context.ReportDiagnostic(Diagnostic.Create(GeneratorNotEnabled, null));
                 return null;
             }
 
@@ -184,7 +183,6 @@ namespace SourceGenerator.MediatR.Proxy
 
             if (attributes.Count == 0)
             {
-                context.ReportDiagnostic(Diagnostic.Create(GeneratorNotEnabled, null));
                 return null;
             }
 
