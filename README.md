@@ -1,14 +1,14 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](/LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/stiankroknes/sourcegenerator-mediatr-proxy)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/issues)
+SourceGenerator.MediatR.Proxy
+=
+
+[![Version](https://img.shields.io/nuget/v/Sourcegenerator.MediatR.Proxy?color=royalblue)](https://www.nuget.org/packages/SourceGenerator.MediatR.Proxy)
+[![Downloads](https://img.shields.io/nuget/dt/SourceGenerator.MediatR.Proxy?label=Nuget%20downloads)](https://www.nuget.org/packages/SourceGenerator.MediatR.Proxy)
+[![License](https://img.shields.io/github/license/stiankroknes/sourcegenerator-mediatr-proxy)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/blob/main/LICENSE)
+[![Build](https://github.com/kzu/ThisAssembly/workflows/build/badge.svg?branch=main)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/actions)
 [![GitHub forks](https://img.shields.io/github/forks/stiankroknes/sourcegenerator-mediatr-proxy)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/network/members)
 [![GitHub stars](https://img.shields.io/github/stars/stiankroknes/sourcegenerator-mediatr-proxy)](https://github.com/stiankroknes/sourcegenerator-mediatr-proxy/stargazers)
 
-[![NuGet Downloads (official NuGet)](https://img.shields.io/nuget/dt/SourceGenerator.MediatR.Proxy?label=NuGet%20Downloads)](https://www.nuget.org/packages/SourceGenerator.MediatR.Proxy/)
-
-# MediatR proxy interface generator
-
 This generator generates interface and interface implementation for you based on your [MediatR](https://github.com/jbogard/MediatR) requests.
-
 
 ## Installation
 
