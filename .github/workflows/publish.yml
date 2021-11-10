@@ -4,6 +4,11 @@ on:
   push:
     tags:
     - '*.*.*'
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  POWERSHELL_TELEMETRY_OPTOUT: 1
+
 jobs:
   build:
     # strategy:
