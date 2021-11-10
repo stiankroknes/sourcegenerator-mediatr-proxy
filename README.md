@@ -20,12 +20,12 @@ This generator generates interface and interface implementation for you based on
 
 Define assembly level attribute in contract/shared assembly where interface should be generated.
 ```csharp
-[assembly: SourceGenerator.MediatR.Proxy.MediatrProxyContract("IMyService", "Project.Shared")]
+[assembly: MediatrProxyContract("IMyService", "Project.Shared")]
 ```
 
 Define assembly level attribute in project where implementation should be generated.
 ```csharp
-[assembly: SourceGenerator.MediatR.Proxy.MediatrProxyImplementation("IMyService", "Project.Shared", "Project.Application.Service")]
+[assembly: MediatrProxyImplementation("IMyService", "Project.Shared", "Project.Application.Service")]
 ```
 
 TODO: Generates ... see demo/tests for examples.
