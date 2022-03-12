@@ -33,3 +33,4 @@ exec { & dotnet build -c Release }
 exec { & dotnet test -c Release -r $artifacts --no-build -l trx --verbosity=normal }
 
 exec { & dotnet pack .\src\SourceGenerator.MediatR.Proxy\SourceGenerator.MediatR.Proxy.csproj -c Release -o $artifacts --no-build }
+exec { & dotnet pack .\src\SourceGenerator.MediatR.Proxy.Contracts\SourceGenerator.MediatR.Proxy.Contracts.csproj -c Release -o $artifacts --no-build }
