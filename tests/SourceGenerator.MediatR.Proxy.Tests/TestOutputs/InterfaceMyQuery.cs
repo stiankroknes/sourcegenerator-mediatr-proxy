@@ -16,6 +16,6 @@ namespace Project.Shared
     public interface IMyService
     {
         [System.ServiceModel.OperationContract]
-        System.Threading.Tasks.Task<MyQueryResultType> My(SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyQuery query, CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyQueryResultType> My(SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyQuery query, CancellationToken cancellationToken = default);
     }
 }

@@ -5,15 +5,18 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="9.0.0" />
+    <PackageReference Include="MediatR" Version="10.0.1" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\demo\MyApp.Shared\MyApp.Shared.csproj" />
     <ProjectReference Include="..\..\src\SourceGenerator.MediatR.Proxy\SourceGenerator.MediatR.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\MyApp.SecondShared\MyApp.SecondShared.csproj" />
   </ItemGroup>
 
 </Project>

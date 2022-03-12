@@ -9,9 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SourceGenerator.MediatR.Pro
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demo", "Demo", "{AEFDDD58-F3B2-4E14-A97D-747C9F0D9BE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp.Application", "demo\MyApp.Application\MyApp.Application.csproj", "{4215AF57-4C45-4151-A852-8331B0D0CD2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyApp.Application", "demo\MyApp.Application\MyApp.Application.csproj", "{4215AF57-4C45-4151-A852-8331B0D0CD2D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyApp.Shared", "demo\MyApp.Shared\MyApp.Shared.csproj", "{AC06B9B8-8378-4FBD-AD1B-0731AED615FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyApp.Shared", "demo\MyApp.Shared\MyApp.Shared.csproj", "{AC06B9B8-8378-4FBD-AD1B-0731AED615FF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyApp.SecondShared", "demo\MyApp.SecondShared\MyApp.SecondShared.csproj", "{9DE45002-975F-4176-9435-7005DF812C45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceGenerator.MediatR.Proxy.Contracts", "src\SourceGenerator.MediatR.Proxy.Contracts\SourceGenerator.MediatR.Proxy.Contracts.csproj", "{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -71,6 +75,30 @@ Global
 		{AC06B9B8-8378-4FBD-AD1B-0731AED615FF}.Release|x64.Build.0 = Release|Any CPU
 		{AC06B9B8-8378-4FBD-AD1B-0731AED615FF}.Release|x86.ActiveCfg = Release|Any CPU
 		{AC06B9B8-8378-4FBD-AD1B-0731AED615FF}.Release|x86.Build.0 = Release|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Debug|x64.Build.0 = Debug|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Debug|x86.Build.0 = Debug|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Release|x64.ActiveCfg = Release|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Release|x64.Build.0 = Release|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Release|x86.ActiveCfg = Release|Any CPU
+		{9DE45002-975F-4176-9435-7005DF812C45}.Release|x86.Build.0 = Release|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Debug|x64.Build.0 = Debug|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Debug|x86.Build.0 = Debug|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Release|x64.ActiveCfg = Release|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Release|x64.Build.0 = Release|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Release|x86.ActiveCfg = Release|Any CPU
+		{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +106,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{4215AF57-4C45-4151-A852-8331B0D0CD2D} = {AEFDDD58-F3B2-4E14-A97D-747C9F0D9BE0}
 		{AC06B9B8-8378-4FBD-AD1B-0731AED615FF} = {AEFDDD58-F3B2-4E14-A97D-747C9F0D9BE0}
+		{9DE45002-975F-4176-9435-7005DF812C45} = {AEFDDD58-F3B2-4E14-A97D-747C9F0D9BE0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {71C742FE-D342-4E86-9F43-50ABED677F87}

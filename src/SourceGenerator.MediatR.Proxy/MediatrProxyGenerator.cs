@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using SourceGenerator.MediatR.Proxy.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +18,8 @@ namespace SourceGenerator.MediatR.Proxy
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
+            //System.Diagnostics.Debugger.Launch();
+
             if (syntaxNode is not (ClassDeclarationSyntax or RecordDeclarationSyntax))
             {
                 return;
@@ -33,11 +35,12 @@ namespace SourceGenerator.MediatR.Proxy
             CandidateTypes.Add(typeDeclarationSyntax);
         }
     }
-    
+
     [Generator]
     public class MediatrProxyGenerator : ISourceGenerator
     {
         private static readonly DiagnosticDescriptor GeneratorOnDuplicateAttributeUsage = new("SGENMPRX001", "Cannot generate interface", "Duplicate usage of {0} was found in assembly", "SourceGeneratorMediatRProxy", DiagnosticSeverity.Error, true);
+        private static readonly DiagnosticDescriptor GeneratorOnProxyInterfaceNotFound = new("SGENMPRX002", "Cannot generate implementation", "The assembly containting proxy interface {0} is not referenced", "SourceGeneratorMediatRProxy", DiagnosticSeverity.Error, true);
 
         public void Initialize(GeneratorInitializationContext context) =>
             context.RegisterForSyntaxNotifications(() => new CandidateSyntaxReceiver());
@@ -49,28 +52,34 @@ namespace SourceGenerator.MediatR.Proxy
                 return;
             }
 
+            //System.Diagnostics.Debugger.Launch();
+
             var compilation = context.Compilation;
 
             // The source generator will run in two contexts (contract, impl). Consider if better to split in two packages.
             // Project where interface is generated will have the attribute present. We should not add the attribute to project implementing the interface.
-            bool isAttributeDefined = context.Compilation.SourceModule.ReferencedAssemblySymbols
-                .Any(a => a.GetAttributes()
-                    .Any(a => a.AttributeClass.Name == "MediatrProxyContractAttribute"));
 
-            if (!isAttributeDefined)
-            {
-                // Create a new compilation that contains the attribute.
-                var attributesSource = ResourceReader.GetResource("MediatrProxyAttribute.cs", GetType());
-                context.AddSource("MediatrAttributes_MainAttributes__", SourceText.From(attributesSource, Encoding.UTF8));
-                var options = (CSharpParseOptions)context.Compilation.SyntaxTrees.First().Options;
-                var attributeSyntaxTree = CSharpSyntaxTree.ParseText(SourceText.From(attributesSource, Encoding.UTF8), options);
-                compilation = context.Compilation.AddSyntaxTrees(attributeSyntaxTree);
-            }
+            //bool isAttributeDefined = context.Compilation.SourceModule.ReferencedAssemblySymbols
+            //    .Any(a => a.GetAttributes()
+            //        .Any(a => a.AttributeClass.Name == "MediatrProxyContractAttribute"));
+
+            //if (!isAttributeDefined)
+            //{
+            //    // Create a new compilation that contains the attribute.
+            //    var attributesSource = SourceCodeGenerator.CreateAttributeSource();
+            //    var attributeSourceText = SourceText.From(attributesSource.SourceCode, Encoding.UTF8);
+            //    context.AddSource(attributesSource.FileName, attributeSourceText);
+
+            //    var options = (CSharpParseOptions)context.Compilation.SyntaxTrees.First().Options;
+            //    var attributeSyntaxTree = CSharpSyntaxTree.ParseText(attributeSourceText, options);
+            //    compilation = context.Compilation.AddSyntaxTrees(attributeSyntaxTree);
+            //}
+            //var att = syntaxReceiver.CandidateTypes.SelectMany(r => r.AttributeLists.SelectMany(t => t.Attributes)).ToList();
 
             // Get attributes
-            var proxyImplementationAttribute = compilation.GetTypeByMetadataName("SourceGenerator.MediatR.Proxy.MediatrProxyImplementationAttribute");
-            var proxyContractAttribute = compilation.GetTypeByMetadataName("SourceGenerator.MediatR.Proxy.MediatrProxyContractAttribute");
-
+            var proxyImplementationAttribute = compilation.GetTypeByMetadataName("SourceGenerator.MediatR.Proxy.Contracts.MediatrProxyImplementationAttribute");
+            var proxyContractAttribute = compilation.GetTypeByMetadataName("SourceGenerator.MediatR.Proxy.Contracts.MediatrProxyContractAttribute");
+            
             // Extract attribute usage options
             var proxyContractOptions = GetProxyContractOptions(context, compilation, proxyContractAttribute);
             var proxyImplementationOptions = GetProxyImplementationOptions(context, compilation, proxyImplementationAttribute);
@@ -85,10 +94,10 @@ namespace SourceGenerator.MediatR.Proxy
             }
         }
 
-        private static void GenerateInterface(GeneratorExecutionContext context, CandidateSyntaxReceiver syntaxReceiver, ProxyContractOptions proxyContractOptions, ProxyImplementationOptions proxyImplementationOptions)
+        private static void GenerateInterface(GeneratorExecutionContext context, CandidateSyntaxReceiver syntaxReceiver, ProxyContractOptions proxyContractOptions, IReadOnlyCollection<ProxyImplementationOptions> proxyImplementationOptions)
         {
             // Scan contract assembly for all query/commands.
-            var requests = MediatrRequestScanner.GetAll(syntaxReceiver.CandidateTypes, proxyContractOptions);
+            var requests = MediatrRequestScanner.GetAll(context.Compilation, syntaxReceiver.CandidateTypes, proxyContractOptions);
 
             if (requests.Count == 0)
             {
@@ -103,42 +112,54 @@ namespace SourceGenerator.MediatR.Proxy
             // Should we also generate implementation of the interface?
             if (proxyImplementationOptions != null)
             {
-                var implementationSource = SourceCodeGenerator.GenerateImplementation(proxyImplementationOptions, requests);
-                context.AddSource(implementationSource.FileName, SourceText.From(implementationSource.SourceCode, Encoding.UTF8));
+                foreach (var option in proxyImplementationOptions)
+                {
+                    var implementationSource = SourceCodeGenerator.GenerateImplementation(option, requests);
+                    context.AddSource(implementationSource.FileName, SourceText.From(implementationSource.SourceCode, Encoding.UTF8));
+                }
             }
         }
 
-        private static void GenerateInterfaceImplementation(GeneratorExecutionContext context, ProxyImplementationOptions proxyImplementationOptions, Compilation compilation)
+        private static void GenerateInterfaceImplementation(GeneratorExecutionContext context, IReadOnlyCollection<ProxyImplementationOptions> proxyImplementationOptionList, Compilation compilation)
         {
             // TODO: resolve contract assembly using context.Compilation.SourceModule.ReferencedAssemblySymbols and use the scanner logic?
+            foreach (var proxyImplementationOption in proxyImplementationOptionList)
+            {
+                // Find the proxy interface we should implement. 
+                var proxyInterfaceName = $"{proxyImplementationOption.ContractNamespace}.{proxyImplementationOption.ProxyInterfaceName}";
+                var proxyInterfaceType = compilation.GetTypeByMetadataName(proxyInterfaceName);
 
-            // Find the proxy interface we should implement. 
-            var proxyInterfaceName = $"{proxyImplementationOptions.ContractNamespace}.{proxyImplementationOptions.ProxyInterfaceName}";
-            var proxyInterfaceType = compilation.GetTypeByMetadataName(proxyInterfaceName);
-
-            // Get request details about each method in the interface.
-            var requests = proxyInterfaceType.GetMembers()
-                .OfType<IMethodSymbol>()
-                .Select(m =>
+                if (proxyInterfaceType == null)
                 {
-                    bool isQuery = m.Parameters[0].ToString().EndsWith(proxyImplementationOptions.QueryPostfix);
+                    context.ReportDiagnostic(Diagnostic.Create(GeneratorOnProxyInterfaceNotFound, null, proxyInterfaceName));
+                    return;
+                }
 
-                    var name = m.Parameters[0].Type.Name.StripPostfix(isQuery
-                        ? proxyImplementationOptions.QueryPostfix
-                        : proxyImplementationOptions.CommandPostfix);
-
-                    return new RequestDetail
+                // Get request details about each method in the interface.
+                var requests = proxyInterfaceType.GetMembers()
+                    .OfType<IMethodSymbol>()
+                    .Select(m =>
                     {
-                        Name = name,
-                        Type = m.Parameters[0].ToString(),
-                        ReturnType = m.ReturnType.ToString(),
-                        Namespace = m.Parameters[0].ContainingNamespace?.ToString(),
-                        IsQuery = isQuery
-                    };
-                }).ToList();
+                        bool isQuery = m.Parameters[0].ToString().EndsWith(proxyImplementationOption.QueryPostfix);
 
-            var source = SourceCodeGenerator.GenerateImplementation(proxyImplementationOptions, requests);
-            context.AddSource(source.FileName, SourceText.From(source.SourceCode, Encoding.UTF8));
+                        var name = m.Parameters[0].Type.Name.StripPostfix(isQuery
+                            ? proxyImplementationOption.QueryPostfix
+                            : proxyImplementationOption.CommandPostfix);
+
+                        return new RequestDetail
+                        {
+                            Name = name,
+                            Type = m.Parameters[0].ToString(),
+                            ReturnType = m.ReturnType.ToString(),
+                            Namespace = m.Parameters[0].ContainingNamespace?.ToString(),
+                            IsQuery = isQuery
+                        };
+
+                    }).ToList();
+
+                var source = SourceCodeGenerator.GenerateImplementation(proxyImplementationOption, requests);
+                context.AddSource(source.FileName, SourceText.From(source.SourceCode, Encoding.UTF8));
+            }
         }
 
         private static ProxyContractOptions GetProxyContractOptions(GeneratorExecutionContext context, Compilation compilation, INamedTypeSymbol proxyContractAttribute)
@@ -170,7 +191,7 @@ namespace SourceGenerator.MediatR.Proxy
             return option;
         }
 
-        private static ProxyImplementationOptions GetProxyImplementationOptions(GeneratorExecutionContext context, Compilation compilation, INamedTypeSymbol proxyImplementationAttribute)
+        private static IReadOnlyCollection<ProxyImplementationOptions> GetProxyImplementationOptions(GeneratorExecutionContext context, Compilation compilation, INamedTypeSymbol proxyImplementationAttribute)
         {
             var attributes = compilation.Assembly.GetAttributes()
               .Where(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, proxyImplementationAttribute))
@@ -183,20 +204,25 @@ namespace SourceGenerator.MediatR.Proxy
 
             if (attributes.Count == 0)
             {
-                return null;
+                return Array.Empty<ProxyImplementationOptions>();
             }
 
-            var attribute = attributes[0];
-            var option = new ProxyImplementationOptions
+            var options = attributes.Select(attribute =>
             {
-                ProxyInterfaceName = (string)attribute.ConstructorArguments[0].Value!,
-                ContractNamespace = (string)attribute.ConstructorArguments[1].Value!,
-                ImplementationNamespace = (string)attribute.ConstructorArguments[2].Value!
-            };
 
-            ApplyScannerOptionsFromNamedArguments(option, attribute);
+                var option = new ProxyImplementationOptions
+                {
+                    ProxyInterfaceName = (string)attribute.ConstructorArguments[0].Value!,
+                    ContractNamespace = (string)attribute.ConstructorArguments[1].Value!,
+                    ImplementationNamespace = (string)attribute.ConstructorArguments[2].Value!
+                };
 
-            return option;
+                ApplyScannerOptionsFromNamedArguments(option, attribute);
+
+                return option;
+            }).ToList();
+
+            return options;
         }
 
         private static void ApplyScannerOptionsFromNamedArguments(MediatrRequestScannerOptions options, AttributeData attribute)

@@ -1,44 +1,43 @@
 ﻿using MediatR;
 
-MyApp.Shared.IMyService service = new MyApp.Application.MyService(new DummyMediator());
+var dummyMediator = new DummyMediator();
+MyApp.Shared.IMyService service = new MyApp.Application.MyService(dummyMediator);
 
-try
-{
-    service.GenerateSomething(new MyApp.Shared.GenerateSomethingCommand());
-}
-catch(DummyMediatorException) { Console.WriteLine("This is working as expected. Command is proxied/forwarded to IMediator."); }
+var generateSomethingCommand = new MyApp.Shared.GenerateSomethingCommand();
+service.GenerateSomething(generateSomethingCommand);
+Console.WriteLine("OK? " + dummyMediator.Sent.Any(t => t == generateSomethingCommand));
 
-try
-{
-    service.GetSomeData(new MyApp.Shared.GetSomeDataQuery());
-}
-catch (DummyMediatorException) { Console.WriteLine("This is working as expected. Query is proxied/forwarded to IMediator! "); }
-
+var getSomeDataQuery = new MyApp.Shared.GetSomeDataQuery();
+service.GetSomeData(getSomeDataQuery);
+Console.WriteLine("OK? " + dummyMediator.Sent.Any(t => t == getSomeDataQuery));
 
 class DummyMediator : IMediator
 {
-    public Task Publish(object notification, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
+    private readonly List<IBaseRequest> sent = new();
 
-    public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default) where TNotification : INotification
-    {
+    public IReadOnlyCollection<IBaseRequest> Sent => sent;
+
+    public IAsyncEnumerable<TResponse> CreateStream<TResponse>(IStreamRequest<TResponse> request, CancellationToken cancellationToken = default) =>
         throw new NotImplementedException();
-    }
+
+    public IAsyncEnumerable<object?> CreateStream(object request, CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
+
+    public Task Publish(object notification, CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
+
+    public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default) where TNotification : INotification =>
+        throw new NotImplementedException();
 
     public Task<TResponse> Send<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
     {
-        throw new DummyMediatorException();
+        sent.Add(request);
+        return Task.FromResult(Activator.CreateInstance<TResponse>());
     }
 
     public Task<object?> Send(object request, CancellationToken cancellationToken = default)
     {
-        throw new DummyMediatorException();
+        sent.Add((IBaseRequest)request);
+        return Task.FromResult((object?)null);
     }
-}
-
-class DummyMediatorException : Exception
-{
-
 }

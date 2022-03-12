@@ -22,6 +22,6 @@ namespace Project.Application.Services
             this.mediator = mediator;
         }
 
-        public System.Threading.Tasks.Task<MyCommandResultType> My(SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyCommand command, CancellationToken cancellationToken = default) => mediator.Send(command, cancellationToken);
+        public System.Threading.Tasks.Task<SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyCommandResultType> My(SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyCommand command, CancellationToken cancellationToken = default) => mediator.Send(command, cancellationToken);
     }
 }

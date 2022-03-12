@@ -48,6 +48,7 @@ namespace SourceGenerator.MediatR.Proxy.Tests.Support
                 references.Add(MetadataReference.CreateFromFile(assembly.Location));
             }
 
+            references.Add(MetadataReference.CreateFromFile(typeof(Contracts.MediatrProxyContractAttribute).GetTypeInfo().Assembly.Location));
             references.Add(MetadataReference.CreateFromFile(typeof(Binder).GetTypeInfo().Assembly.Location));
 
             var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);

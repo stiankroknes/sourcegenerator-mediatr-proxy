@@ -17,5 +17,5 @@
     <ProjectReference Include="..\..\src\SourceGenerator.MediatR.Proxy.Contracts\SourceGenerator.MediatR.Proxy.Contracts.csproj" />
     <ProjectReference Include="..\..\src\SourceGenerator.MediatR.Proxy\SourceGenerator.MediatR.Proxy.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
-
+  
 </Project>

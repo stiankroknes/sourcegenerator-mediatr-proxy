@@ -14,7 +14,13 @@ namespace SourceGenerator.MediatR.Proxy.Internal
         // TODO: add support custom template, maybe split to usings, attributes, method templates, and allow override parts.
         // Now we generate with servicemodel attributes.
 
-        public static GeneratedSource GenerateInterface(ProxyContractOptions proxyContractOptions, IReadOnlyList<RequestDetail> requests)
+        internal static SourceFile CreateAttributeSource()
+        {
+            var attributesSource = ResourceReader.GetResource("MediatrProxyAttribute.cs", ThisAssemblyType);
+            return new SourceFile("MediatrProxyAttribute.g.cs", attributesSource);
+        }
+
+        internal static SourceFile GenerateInterface(ProxyContractOptions proxyContractOptions, IReadOnlyList<RequestDetail> requests)
         {
             var templateString = ResourceReader.GetResource("ServiceInterface.scriban", ThisAssemblyType);
 
@@ -43,10 +49,10 @@ namespace SourceGenerator.MediatR.Proxy.Internal
 
             var result = TemplateEngine.Execute(templateString, model);
 
-            return new GeneratedSource(result, $"{model.InterfaceName}.cs");
+            return new SourceFile($"{model.InterfaceName}.g.cs", result);
         }
 
-        internal static GeneratedSource GenerateImplementation(ProxyImplementationOptions proxyOptions, IReadOnlyList<RequestDetail> requests)
+        internal static SourceFile GenerateImplementation(ProxyImplementationOptions proxyOptions, IReadOnlyList<RequestDetail> requests)
         {
             var templateString = ResourceReader.GetResource("ServiceImplementation.scriban", ThisAssemblyType);
 
@@ -78,7 +84,7 @@ namespace SourceGenerator.MediatR.Proxy.Internal
 
             var result = TemplateEngine.Execute(templateString, model);
 
-            return new GeneratedSource(result, $"{model.ClassName}.cs");
+            return new SourceFile($"{model.ClassName}.g.cs", result);
         }
     }
 }

@@ -22,6 +22,6 @@ namespace Project.Application.Services
             this.mediator = mediator;
         }
 
-        public System.Threading.Tasks.Task<MyQueryResultType> My(SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyQuery query, CancellationToken cancellationToken = default) => mediator.Send(query, cancellationToken);
+        public System.Threading.Tasks.Task<SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyQueryResultType> My(SourceGenerator.MediatR.Proxy.Tests.TestInputs.MyQuery query, CancellationToken cancellationToken = default) => mediator.Send(query, cancellationToken);
     }
 }
