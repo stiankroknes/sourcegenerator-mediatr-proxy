@@ -1,6 +1,6 @@
 ﻿namespace SourceGenerator.MediatR.Proxy.Contracts;
 
-[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
 public sealed class MediatrProxyImplementationAttribute : Attribute
 {
     public string ProxyInterfaceName { get; }

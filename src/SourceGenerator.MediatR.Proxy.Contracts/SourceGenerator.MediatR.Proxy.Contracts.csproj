@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <Authors>Stian Kroknes</Authors>
     <Description>Attributes to be used by SourceGenerator.MediatR.Proxy. Can be used both in shared and implementation assembly.</Description>
     <PackageProjectUrl>https://github.com/stiankroknes/sourcegenerator-mediatr-proxy</PackageProjectUrl>

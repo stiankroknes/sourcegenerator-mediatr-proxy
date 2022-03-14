@@ -79,25 +79,26 @@ namespace SourceGenerator.MediatR.Proxy
             // Get attributes
             var proxyImplementationAttribute = compilation.GetTypeByMetadataName("SourceGenerator.MediatR.Proxy.Contracts.MediatrProxyImplementationAttribute");
             var proxyContractAttribute = compilation.GetTypeByMetadataName("SourceGenerator.MediatR.Proxy.Contracts.MediatrProxyContractAttribute");
-            
+
             // Extract attribute usage options
             var proxyContractOptions = GetProxyContractOptions(context, compilation, proxyContractAttribute);
             var proxyImplementationOptions = GetProxyImplementationOptions(context, compilation, proxyImplementationAttribute);
 
-            if (proxyContractOptions != null)
+            if (proxyContractOptions.Count > 0)
             {
                 GenerateInterface(context, syntaxReceiver, proxyContractOptions, proxyImplementationOptions);
             }
-            else if (proxyImplementationOptions != null)
+            else if (proxyImplementationOptions.Count > 0)
             {
                 GenerateInterfaceImplementation(context, proxyImplementationOptions, compilation);
             }
         }
 
-        private static void GenerateInterface(GeneratorExecutionContext context, CandidateSyntaxReceiver syntaxReceiver, ProxyContractOptions proxyContractOptions, IReadOnlyCollection<ProxyImplementationOptions> proxyImplementationOptions)
+        private static void GenerateInterface(GeneratorExecutionContext context, CandidateSyntaxReceiver syntaxReceiver, IReadOnlyCollection<ProxyContractOptions> proxyContractOptions, IReadOnlyCollection<ProxyImplementationOptions> proxyImplementationOptions)
         {
             // Scan contract assembly for all query/commands.
-            var requests = MediatrRequestScanner.GetAll(context.Compilation, syntaxReceiver.CandidateTypes, proxyContractOptions);
+            var requests = MediatrRequestScanner.GetAll(context.Compilation, syntaxReceiver.CandidateTypes,
+                proxyContractOptions.First() /* Assume same query/command postfix  */);
 
             if (requests.Count == 0)
             {
@@ -105,17 +106,22 @@ namespace SourceGenerator.MediatR.Proxy
                 return;
             }
 
-            // Generate interface containing a method for each query/command found.
-            var source = SourceCodeGenerator.GenerateInterface(proxyContractOptions, requests);
-            context.AddSource(source.FileName, SourceText.From(source.SourceCode, Encoding.UTF8));
-
-            // Should we also generate implementation of the interface?
-            if (proxyImplementationOptions != null)
+            foreach (var contractOption in proxyContractOptions)
             {
-                foreach (var option in proxyImplementationOptions)
+                var requestsInNamespace = requests.Where(r => r.Namespace.StartsWith(contractOption.ContractNamespace, StringComparison.Ordinal)).ToArray();
+
+                // Generate interface containing a method for each query/command found.
+                var source = SourceCodeGenerator.GenerateInterface(contractOption, requestsInNamespace);
+                context.AddSource(source.FileName, SourceText.From(source.SourceCode, Encoding.UTF8));
+
+                // Should we also generate implementation of the interface?
+                if (proxyImplementationOptions != null)
                 {
-                    var implementationSource = SourceCodeGenerator.GenerateImplementation(option, requests);
-                    context.AddSource(implementationSource.FileName, SourceText.From(implementationSource.SourceCode, Encoding.UTF8));
+                    foreach (var implementationOption in proxyImplementationOptions)
+                    {
+                        var implementationSource = SourceCodeGenerator.GenerateImplementation(implementationOption, requestsInNamespace);
+                        context.AddSource(implementationSource.FileName, SourceText.From(implementationSource.SourceCode, Encoding.UTF8));
+                    }
                 }
             }
         }
@@ -162,33 +168,38 @@ namespace SourceGenerator.MediatR.Proxy
             }
         }
 
-        private static ProxyContractOptions GetProxyContractOptions(GeneratorExecutionContext context, Compilation compilation, INamedTypeSymbol proxyContractAttribute)
+        private static IReadOnlyCollection<ProxyContractOptions> GetProxyContractOptions(GeneratorExecutionContext context, Compilation compilation, INamedTypeSymbol proxyContractAttribute)
         {
             var attributes = compilation.Assembly.GetAttributes()
                 .Where(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, proxyContractAttribute))
                 .ToList();
 
-            if (attributes.Count > 1)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(GeneratorOnDuplicateAttributeUsage, null, proxyContractAttribute.Name));
-            }
+            //if (attributes.Count > 1)
+            //{
+            //    context.ReportDiagnostic(Diagnostic.Create(GeneratorOnDuplicateAttributeUsage, null, proxyContractAttribute.Name));
+            //}
 
             if (attributes.Count == 0)
             {
-                return null;
+                return Array.Empty<ProxyContractOptions>();
             }
 
-            var attribute = attributes[0];
+            var options = new List<ProxyContractOptions>();
 
-            var option = new ProxyContractOptions
+            foreach (var attribute in attributes)
             {
-                ProxyInterfaceName = (string)attribute.ConstructorArguments[0].Value!,
-                ContractNamespace = (string)attribute.ConstructorArguments[1].Value!,
-            };
+                var option = new ProxyContractOptions
+                {
+                    ProxyInterfaceName = (string)attribute.ConstructorArguments[0].Value!,
+                    ContractNamespace = (string)attribute.ConstructorArguments[1].Value!,
+                };
 
-            ApplyScannerOptionsFromNamedArguments(option, attribute);
+                ApplyScannerOptionsFromNamedArguments(option, attribute);
 
-            return option;
+                options.Add(option);
+            }
+
+            return options;
         }
 
         private static IReadOnlyCollection<ProxyImplementationOptions> GetProxyImplementationOptions(GeneratorExecutionContext context, Compilation compilation, INamedTypeSymbol proxyImplementationAttribute)
@@ -197,19 +208,20 @@ namespace SourceGenerator.MediatR.Proxy
               .Where(x => SymbolEqualityComparer.Default.Equals(x.AttributeClass, proxyImplementationAttribute))
               .ToList();
 
-            if (attributes.Count > 1)
-            {
-                context.ReportDiagnostic(Diagnostic.Create(GeneratorOnDuplicateAttributeUsage, null, proxyImplementationAttribute.Name));
-            }
+            //if (attributes.Count > 1)
+            //{
+            //    context.ReportDiagnostic(Diagnostic.Create(GeneratorOnDuplicateAttributeUsage, null, proxyImplementationAttribute.Name));
+            //}
 
             if (attributes.Count == 0)
             {
                 return Array.Empty<ProxyImplementationOptions>();
             }
 
-            var options = attributes.Select(attribute =>
-            {
+            var options = new List<ProxyImplementationOptions>();
 
+            foreach (var attribute in attributes)
+            {
                 var option = new ProxyImplementationOptions
                 {
                     ProxyInterfaceName = (string)attribute.ConstructorArguments[0].Value!,
@@ -219,8 +231,8 @@ namespace SourceGenerator.MediatR.Proxy
 
                 ApplyScannerOptionsFromNamedArguments(option, attribute);
 
-                return option;
-            }).ToList();
+                options.Add(option);
+            }
 
             return options;
         }

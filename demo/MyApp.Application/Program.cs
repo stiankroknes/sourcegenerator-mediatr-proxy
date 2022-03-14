@@ -4,12 +4,17 @@ var dummyMediator = new DummyMediator();
 MyApp.Shared.IMyService service = new MyApp.Application.MyService(dummyMediator);
 
 var generateSomethingCommand = new MyApp.Shared.GenerateSomethingCommand();
-service.GenerateSomething(generateSomethingCommand);
+await service.GenerateSomething(generateSomethingCommand);
 Console.WriteLine("OK? " + dummyMediator.Sent.Any(t => t == generateSomethingCommand));
 
 var getSomeDataQuery = new MyApp.Shared.GetSomeDataQuery();
-service.GetSomeData(getSomeDataQuery);
+await service.GetSomeData(getSomeDataQuery);
 Console.WriteLine("OK? " + dummyMediator.Sent.Any(t => t == getSomeDataQuery));
+
+MyApp.SecondShared.IMyOtherService service2 = new MyApp.Application.MyOtherService(dummyMediator);
+var getSome2 = new MyApp.SecondShared.GetSomeDataQuery();
+await service2.GetSomeData(getSome2);
+Console.WriteLine("OK? " + dummyMediator.Sent.Any(t => t == getSome2));
 
 class DummyMediator : IMediator
 {
