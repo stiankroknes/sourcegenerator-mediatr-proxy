@@ -20,6 +20,8 @@ namespace SourceGenerator.MediatR.Proxy.Internal
             {
                 var model = compilation.GetSemanticModel(tds.SyntaxTree);
 
+                var ns = tds.GetNamespace();
+
                 foreach (var entry in tds.BaseList.Types)
                 {
                     if (entry is not SimpleBaseTypeSyntax { Type: GenericNameSyntax type } baseType)
@@ -38,6 +40,11 @@ namespace SourceGenerator.MediatR.Proxy.Internal
                         var comments = request.GetLeadingTrivia().ToString();
                         var requestNamespace = ((QualifiedNameSyntax)((BaseNamespaceDeclarationSyntax)request.Parent).Name).ToString();
                         var requestName = request.Identifier.ValueText.StripPostfix(isQuery ? options.QueryPostfix : options.CommandPostfix);
+
+                        if (string.Equals(ns, requestNamespace, System.StringComparison.Ordinal))
+                        {
+                            requestNamespace = ns;
+                        }
 
                         requests.Add(new RequestDetail
                         {
