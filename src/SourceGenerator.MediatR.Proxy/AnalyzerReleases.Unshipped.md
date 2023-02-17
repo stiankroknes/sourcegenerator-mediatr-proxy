@@ -5,3 +5,5 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
+SGENMPRX001 | SourceGeneratorMediatRProxy | Error | MediatrProxyGenerator
+SGENMPRX002 | SourceGeneratorMediatRProxy | Error | MediatrProxyGenerator
