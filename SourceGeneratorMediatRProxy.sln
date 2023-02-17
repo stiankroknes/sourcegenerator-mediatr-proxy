@@ -15,7 +15,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyApp.Shared", "demo\MyApp.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyApp.SecondShared", "demo\MyApp.SecondShared\MyApp.SecondShared.csproj", "{9DE45002-975F-4176-9435-7005DF812C45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceGenerator.MediatR.Proxy.Contracts", "src\SourceGenerator.MediatR.Proxy.Contracts\SourceGenerator.MediatR.Proxy.Contracts.csproj", "{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SourceGenerator.MediatR.Proxy.Contracts", "src\SourceGenerator.MediatR.Proxy.Contracts\SourceGenerator.MediatR.Proxy.Contracts.csproj", "{14E7CBDD-9AE1-4899-8CCC-3C3513BD0343}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{7F65638B-4B2A-4D2F-A149-C0D52A37A61D}"
+	ProjectSection(SolutionItems) = preProject
+		build.ps1 = build.ps1
+		Directory.Build.props = Directory.Build.props
+		push.ps1 = push.ps1
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "github", "github", "{DD9580FE-021A-4B4A-A677-526E1D5BF156}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
+		.github\workflows\codeql-analysis.yml = .github\workflows\codeql-analysis.yml
+		.github\workflows\publish.yml = .github\workflows\publish.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -107,6 +122,7 @@ Global
 		{4215AF57-4C45-4151-A852-8331B0D0CD2D} = {AEFDDD58-F3B2-4E14-A97D-747C9F0D9BE0}
 		{AC06B9B8-8378-4FBD-AD1B-0731AED615FF} = {AEFDDD58-F3B2-4E14-A97D-747C9F0D9BE0}
 		{9DE45002-975F-4176-9435-7005DF812C45} = {AEFDDD58-F3B2-4E14-A97D-747C9F0D9BE0}
+		{DD9580FE-021A-4B4A-A677-526E1D5BF156} = {7F65638B-4B2A-4D2F-A149-C0D52A37A61D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {71C742FE-D342-4E86-9F43-50ABED677F87}
