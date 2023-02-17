@@ -37,10 +37,12 @@ namespace SourceGenerator.MediatR.Proxy
     }
 
     [Generator]
+#pragma warning disable RS1036 // Specify analyzer banned API enforcement setting
     public class MediatrProxyGenerator : ISourceGenerator
+#pragma warning restore RS1036 // Specify analyzer banned API enforcement setting
     {
-        private static readonly DiagnosticDescriptor GeneratorOnDuplicateAttributeUsage = new("SGENMPRX001", "Cannot generate interface", "Duplicate usage of {0} was found in assembly", "SourceGeneratorMediatRProxy", DiagnosticSeverity.Error, true);
-        private static readonly DiagnosticDescriptor GeneratorOnProxyInterfaceNotFound = new("SGENMPRX002", "Cannot generate implementation", "The assembly containting proxy interface {0} is not referenced", "SourceGeneratorMediatRProxy", DiagnosticSeverity.Error, true);
+        private static readonly DiagnosticDescriptor generatorOnDuplicateAttributeUsage = new("SGENMPRX001", "Cannot generate interface", "Duplicate usage of {0} was found in assembly", "SourceGeneratorMediatRProxy", DiagnosticSeverity.Error, true);
+        private static readonly DiagnosticDescriptor generatorOnProxyInterfaceNotFound = new("SGENMPRX002", "Cannot generate implementation", "The assembly containing proxy interface {0} is not referenced", "SourceGeneratorMediatRProxy", DiagnosticSeverity.Error, true);
 
         public void Initialize(GeneratorInitializationContext context) =>
             context.RegisterForSyntaxNotifications(() => new CandidateSyntaxReceiver());
@@ -137,7 +139,7 @@ namespace SourceGenerator.MediatR.Proxy
 
                 if (proxyInterfaceType == null)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(GeneratorOnProxyInterfaceNotFound, null, proxyInterfaceName));
+                    context.ReportDiagnostic(Diagnostic.Create(generatorOnProxyInterfaceNotFound, null, proxyInterfaceName));
                     return;
                 }
 
@@ -146,7 +148,10 @@ namespace SourceGenerator.MediatR.Proxy
                     .OfType<IMethodSymbol>()
                     .Select(m =>
                     {
-                        bool isQuery = m.Parameters[0].ToString().EndsWith(proxyImplementationOption.QueryPostfix);
+                        var parameterType = m.Parameters[0].Type.Name;
+                        var parameterName = m.Parameters[0].Name;
+
+                        bool isQuery = parameterType.EndsWith(proxyImplementationOption.QueryPostfix);
 
                         var name = m.Parameters[0].Type.Name.StripPostfix(isQuery
                             ? proxyImplementationOption.QueryPostfix
@@ -155,7 +160,7 @@ namespace SourceGenerator.MediatR.Proxy
                         return new RequestDetail
                         {
                             Name = name,
-                            Type = m.Parameters[0].ToString(),
+                            Type = parameterType,
                             ReturnType = m.ReturnType.ToString(),
                             Namespace = m.Parameters[0].ContainingNamespace?.ToString(),
                             IsQuery = isQuery

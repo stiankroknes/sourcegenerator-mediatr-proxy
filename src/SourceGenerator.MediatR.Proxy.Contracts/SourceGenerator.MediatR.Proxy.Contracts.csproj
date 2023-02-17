@@ -1,10 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.5</Version>
     <Authors>Stian Kroknes</Authors>
     <Description>Attributes to be used by SourceGenerator.MediatR.Proxy. Can be used both in shared and implementation assembly.</Description>
     <PackageProjectUrl>https://github.com/stiankroknes/sourcegenerator-mediatr-proxy</PackageProjectUrl>
@@ -13,6 +12,15 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>@ Stian Kroknes</Copyright>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerMinimumMajorMinor>1.0</MinVerMinimumMajorMinor>
+    <MinVerDefaultPreReleaseIdentifier>preview</MinVerDefaultPreReleaseIdentifier>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" Version="4.3.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
 
 </Project>

@@ -7,6 +7,13 @@ namespace SourceGenerator.MediatR.Proxy.Tests
 {
     public class MediatrGeneratorTests
     {
+        [Fact]
+        public void Dummy()
+        {
+            var value = true;
+            Assert.True(value);
+        }
+
         [Fact(Skip = "Attribute usage is not working and step GetProxyContractOptions does not find attributes.")]
         public async Task MediatrGenerator_query()
         {
@@ -14,10 +21,10 @@ namespace SourceGenerator.MediatR.Proxy.Tests
             var expectedInterfaceSource = await GetTestOutputs("InterfaceMyQuery.cs");
             var expectedInterfaceImplSource = await GetTestOutputs("InterfaceImplMyQuery.cs");
 
-            var attributeUsage = @"
+            var attributeUsage = @"""
 [assembly: SourceGenerator.MediatR.Proxy.Contracts.MediatrProxyContractAttribute(""IMyService"", ""Project.Shared"")]
 [assembly: SourceGenerator.MediatR.Proxy.Contracts.MediatrProxyImplementationAttribute(""IMyService"", ""Project.Shared"", ""Project.Application.Services"")]
-";
+""";
             var result = GeneratorRunner.Run(myQuerySource, attributeUsage, new MediatrProxyGenerator());
 
             var interfaceSource = result.GetSourceByFileName("IMyService.g.cs").Source;

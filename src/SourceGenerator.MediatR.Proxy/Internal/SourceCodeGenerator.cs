@@ -9,20 +9,14 @@ namespace SourceGenerator.MediatR.Proxy.Internal
     /// </summary>
     internal static class SourceCodeGenerator
     {
-        private static readonly Type ThisAssemblyType = typeof(SourceCodeGenerator);
+        private static readonly Type thisAssemblyType = typeof(SourceCodeGenerator);
 
         // TODO: add support custom template, maybe split to usings, attributes, method templates, and allow override parts.
         // Now we generate with servicemodel attributes.
 
-        internal static SourceFile CreateAttributeSource()
-        {
-            var attributesSource = ResourceReader.GetResource("MediatrProxyAttribute.cs", ThisAssemblyType);
-            return new SourceFile("MediatrProxyAttribute.g.cs", attributesSource);
-        }
-
         internal static SourceFile GenerateInterface(ProxyContractOptions proxyContractOptions, IReadOnlyList<RequestDetail> requests)
         {
-            var templateString = ResourceReader.GetResource("ServiceInterface.scriban", ThisAssemblyType);
+            var templateString = ResourceReader.GetResource("ServiceInterface.scriban", thisAssemblyType);
 
             string name = proxyContractOptions.ProxyInterfaceName;
             string rootNamespace = proxyContractOptions.ContractNamespace;
@@ -54,7 +48,7 @@ namespace SourceGenerator.MediatR.Proxy.Internal
 
         internal static SourceFile GenerateImplementation(ProxyImplementationOptions proxyOptions, IReadOnlyList<RequestDetail> requests)
         {
-            var templateString = ResourceReader.GetResource("ServiceImplementation.scriban", ThisAssemblyType);
+            var templateString = ResourceReader.GetResource("ServiceImplementation.scriban", thisAssemblyType);
 
             // TODO name by csproj prop ? attribute ?
             string name = proxyOptions.ProxyInterfaceName.Substring(1); // TODO more robust strategy. 
