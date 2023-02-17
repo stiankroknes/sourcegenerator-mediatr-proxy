@@ -148,7 +148,7 @@ namespace SourceGenerator.MediatR.Proxy
                     .OfType<IMethodSymbol>()
                     .Select(m =>
                     {
-                        var parameterType = m.Parameters[0].Type.ToDisplayString();
+                        var parameterType = m.Parameters[0].Type.Name;
                         var parameterName = m.Parameters[0].Name;
 
                         bool isQuery = parameterType.EndsWith(proxyImplementationOption.QueryPostfix);
