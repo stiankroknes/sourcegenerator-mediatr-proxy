@@ -7,6 +7,13 @@ namespace SourceGenerator.MediatR.Proxy.Tests
 {
     public class MediatrGeneratorTests
     {
+        [Fact]
+        public void Dummy()
+        {
+            var value = true;
+            Assert.True(value);
+        }
+
         [Fact(Skip = "Attribute usage is not working and step GetProxyContractOptions does not find attributes.")]
         public async Task MediatrGenerator_query()
         {
